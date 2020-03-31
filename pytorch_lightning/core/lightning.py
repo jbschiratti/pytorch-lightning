@@ -225,6 +225,7 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
             The presented loss value in progress bar is smooth (average) over last values,
              so it differs from values set in train/validation step.
         """
+        warnings.warn('training_step must be implemented to be used with the Lightning Trainer')
 
     def training_end(self, *args, **kwargs):
         """
@@ -912,8 +913,6 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
         Choose what optimizers and learning-rate schedulers to use in your optimization.
         Normally you'd need one. But in the case of GANs or similar you might have multiple.
 
-        If you don't define this method Lightning will automatically use Adam(lr=1e-3)
-
         Return: any of these 3 options:
             - Single optimizer
             - List or Tuple - List of optimizers
@@ -983,7 +982,7 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
                   }
 
         """
-        return Adam(self.parameters(), lr=1e-3)
+        warnings.warn('configure_optimizers must be implemented to be used with the Lightning Trainer')
 
     def optimizer_step(
             self,
@@ -1185,6 +1184,7 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
                     return loader
 
         """
+        warnings.warn('train_dataloader must be implemented to be used with the Lightning Trainer')
 
     def tng_dataloader(self):  # todo: remove in v1.0.0
         """Implement a PyTorch DataLoader.
