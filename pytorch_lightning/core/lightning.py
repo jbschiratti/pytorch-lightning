@@ -245,16 +245,18 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
             for train_batch in train_data:
                 out = training_step(train_batch)
                 train_outs.append(out)
-            training_epoch_end(val_outs)
+            training_epoch_end(train_outs)
 
         Args:
             outputs: List of outputs you defined in training_step, or if there are multiple
-            dataloaders, a list containing a list of outputs for each dataloader
+                     dataloaders, a list containing a list of outputs for each dataloader
 
         Return:
-            Dict or OrderedDict (dict): Dict has the following optional keys:
-            progress_bar -> Dict for progress bar display. Must have only tensors
-            log -> Dict of metrics to add to logger. Must have only tensors (no images, etc)
+            Dict or OrderedDict
+            The output dict may contain optional keys such as:
+                - log (dict of metrics to add to the logger ; only tensors)
+                - progress_bar (dict of metrics for progress bar display ; only tensors)
+                - any metric used with a callback (e.g. early stopping)
 
         .. note:: If this method is not overridden, this won't be called.
 
@@ -282,7 +284,7 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
 
             With multiple dataloaders, `outputs` will be a list of lists. The outer list contains
             one entry per dataloader, while the inner list contains the individual outputs of
-            each validation step for that dataloader.
+            each training step for that dataloader.
 
             .. code-block:: python
 
@@ -389,8 +391,9 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
                 (only if multiple val datasets used)
 
         Return:
-            Dict or OrderedDict - passed to validation_epoch_end.
-            If you defined validation_step_end it will go to that first.
+            Dict or OrderedDict
+            If you defined validation_step_end, it will receive the output of validation_step (see code below).
+            At the end of an epoch, the outputs of successive calls to validation step can be processed in validation_epoch_end.
 
         .. code-block:: python
 
@@ -399,7 +402,6 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
             if defined('validation_step_end'):
                 out = validation_step_end(out)
             out = validation_epoch_end(out)
-
 
         .. code-block:: python
 
@@ -542,9 +544,10 @@ class LightningModule(ABC, GradInformation, ModelIO, ModelHooks):
             dataloaders, a list containing a list of outputs for each dataloader
 
         Return:
-            Dict or OrderedDict (dict): Dict has the following optional keys:
-            progress_bar -> Dict for progress bar display. Must have only tensors
-            log -> Dict of metrics to add to logger. Must have only tensors (no images, etc)
+            Dict or OrderedDict
+            The output dict may contain optional keys such as:
+                - log (dict of metrics to add to the logger ; only tensors)
+                - progress_bar (dict of metrics for progress bar display ; only tensors).
 
         .. note:: If you didn't define a validation_step, this won't be called.
 
